@@ -2,7 +2,6 @@ package com.github.EkaterinaShulga.TreeCategoryBot.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.Accessors;
 
 import java.util.Objects;
 
@@ -29,7 +28,7 @@ public class Category {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Category category = (Category) o;
-        return parentId == category.parentId && Objects.equals(id, category.id) && Objects.equals(title, category.title);
+        return parentId.equals(category.parentId) && Objects.equals(id, category.id) && Objects.equals(title, category.title);
     }
 
     @Override

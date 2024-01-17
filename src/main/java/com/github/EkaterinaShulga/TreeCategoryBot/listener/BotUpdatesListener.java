@@ -1,6 +1,6 @@
 package com.github.EkaterinaShulga.TreeCategoryBot.listener;
 
-import com.github.EkaterinaShulga.TreeCategoryBot.servise.serviceImpl.MessageHandler;
+import com.github.EkaterinaShulga.TreeCategoryBot.servise.impl.MessageHandler;
 import com.pengrad.telegrambot.BotUtils;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -16,6 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+
+import static com.github.EkaterinaShulga.TreeCategoryBot.constants.TextResponsesForUser.ATTENTION;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -23,7 +26,6 @@ public class BotUpdatesListener implements UpdatesListener {
     private final TelegramBot telegramBot;
     private final MessageHandler messageHandler;
 
-    public static String ATTENTION_MESSAGE = "Внимание! Информация введена не корректно";
 
     @PostConstruct
     public void init() throws IOException {
@@ -38,9 +40,9 @@ public class BotUpdatesListener implements UpdatesListener {
             try {
                 messageHandler.messageHandler(update);
             } catch (Exception e) {
-                log.info(ATTENTION_MESSAGE + e);
+                log.info(ATTENTION.getMessage() + e);
                 telegramBot.execute(new SendMessage(update.message().chat().id(),
-                        ATTENTION_MESSAGE));
+                        ATTENTION.getMessage()));
             }
         });
         log.info("returned an answer" + UpdatesListener.CONFIRMED_UPDATES_ALL);
