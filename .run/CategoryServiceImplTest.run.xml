@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CategoryServiceImplTest" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <module name="TreeCategoryBot" />
+    <extension name="coverage" track_test_folders="true" />
+    <option name="PACKAGE_NAME" value="com.github.EkaterinaShulga.TreeCategoryBot.service.impl" />
+    <option name="MAIN_CLASS_NAME" value="com.github.EkaterinaShulga.TreeCategoryBot.service.impl.CategoryServiceImplTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
