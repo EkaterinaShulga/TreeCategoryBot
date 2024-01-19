@@ -5,11 +5,22 @@ import com.github.EkaterinaShulga.TreeCategoryBot.repository.CategoryRepository;
 import com.github.EkaterinaShulga.TreeCategoryBot.servise.CategoryService;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.github.EkaterinaShulga.TreeCategoryBot.constants.TextResponsesForUser.*;
@@ -20,6 +31,9 @@ import static com.github.EkaterinaShulga.TreeCategoryBot.constants.TextResponses
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final TelegramBot telegramBot;
+
+    @Value("${path.to.photos.folder}")
+    private String photoDis;
 
     /**
      * adds Category in the database
@@ -225,9 +239,84 @@ public class CategoryServiceImpl implements CategoryService {
         return stb.toString();
     }
 
+    /**
+     * method requests information from the database,
+     * if database is empty - notifies the user about this
+     * else - calls the method for creating an Excel file and sends
+     * it to the user
+     *
+     * @param update - update from the bot
+     */
+    @Override
+    public void sendExcelFile(Update update) throws IOException {
+        log.info("sendExcelFile - categoryServiceImpl");
+        long chatId = update.message().chat().id();
+        List<Category> list = categoryRepository.findAll();
+        if (list.isEmpty()) {
+            telegramBot.execute(new SendMessage(chatId, INFORMATION_MESSAGE_DATABASE_IS_IMPTY.getMessage()));
+        } else {
+            createExcelFile(update, createBook(list));
+        }
+    }
+
+    /**
+     * method creates book for information from database
+     *
+     * @param list - list with all titles of categories
+     * @return Workbook - book with information from database
+     */
+    @Override
+    public Workbook createBook(List<Category> list) {
+        log.info("createBook - categoryServiceImpl");
+        Workbook book = new HSSFWorkbook();
+        Sheet sheet = book.createSheet("CategoryTree");
+        for (int i = 0, y = 1; i < list.size(); i++, y++) {
+            Row rowTitle = sheet.createRow(0);
+            Cell cellIdCategory = rowTitle.createCell(0);
+            cellIdCategory.setCellValue("id category");
+            Cell cellTitleCategory = rowTitle.createCell(1);
+            cellTitleCategory.setCellValue("name category");
+            Cell cellParentIdCategory = rowTitle.createCell(2);
+            cellParentIdCategory.setCellValue("id parent");
+
+            Row rowData = sheet.createRow(y);
+            Cell cellId = rowData.createCell(0);
+            Cell cellTitle = rowData.createCell(1);
+            Cell cellParentId = rowData.createCell(2);
+            cellId.setCellValue(list.get(i).getId());
+            cellTitle.setCellValue(list.get(i).getTitle());
+            cellParentId.setCellValue(list.get(i).getParentId());
+        }
+        return book;
+
+    }
+
+    /**
+     * method creates Excel file with information from database,
+     * sends file for user
+     *
+     * @param update- - update from the bot
+     * @param book    - book with information from database
+     */
+    public void createExcelFile(Update update, Workbook book) throws IOException {
+        log.info("createExcelFile - categoryServiceImpl");
+        long chatId = update.message().chat().id();
+        try {
+            FileOutputStream fileOut = new FileOutputStream(photoDis);
+            book.write(fileOut);
+            fileOut.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        byte[] byteBook = Files.readAllBytes(Path.of(photoDis));
+        SendDocument sendDocument = new SendDocument(chatId, byteBook);
+
+        telegramBot.execute(new SendMessage(chatId, INFORMATION_MESSAGE_CREATE_EXCEL_FILE.getMessage()));
+        telegramBot.execute(sendDocument);
+    }
 
 }
-
 
 
 
