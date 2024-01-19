@@ -8,6 +8,7 @@ public enum CommandName {
     EDD_ELEMENT("/addElement"),
     ADD_SUB_ELEMENT("/addSubElement"),
     REMOVE_ELEMENT("/removeElement"),
+    DOWNLOAD("/download"),
     HELP("/help");
 
     private final String message;

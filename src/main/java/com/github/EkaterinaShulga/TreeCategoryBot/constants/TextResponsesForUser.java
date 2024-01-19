@@ -11,6 +11,10 @@ public enum TextResponsesForUser {
             " или такая подкатегория уже есть"),
     INFORMATION_MESSAGE_CATEGORY_DELETE("удалена категория и ее подкатегории  -"),
 
+    INFORMATION_MESSAGE_DATABASE_IS_IMPTY("база данных пуста, чтобы получить exel документ," +
+            " добавьте хотя бы одну категорию "),
+    INFORMATION_MESSAGE_CREATE_EXCEL_FILE("по вашему запросу создал exel документ"),
+
     INFORMATION_MESSAGE_ALL_FUNCTIONS_MENU
             ("""
                     Вам доступны следующие команды:
@@ -23,6 +27,8 @@ public enum TextResponsesForUser {
                     добавляет подкатегорию в категорию;\s
 
                     /removeElement <название категории> - удаляет категорию и все ее подкатегории;\s
+                                        
+                    /download  - создает Excel документ, с деревом категорий(из базы данных);\s
                                         
                     /help -  список всех доступных команд с их кратким описанием""");
 

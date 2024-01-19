@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class CommandContainer {
         mapCommand.put(EDD_ELEMENT.getMessage(), new AddElementCommand());
         mapCommand.put(ADD_SUB_ELEMENT.getMessage(), new AddSubElementCommand());
         mapCommand.put(REMOVE_ELEMENT.getMessage(), new RemoveElementCommand());
+        mapCommand.put(DOWNLOAD.getMessage(), new DownloadCommand());
         mapCommand.put(HELP.getMessage(), new HelpCommand());
         return mapCommand;
     }
@@ -46,7 +48,7 @@ public class CommandContainer {
      * @param service - CategoryService
      */
 
-    public void retrieveCommand(String text, Update update, CategoryService service) {
+    public void retrieveCommand(String text, Update update, CategoryService service) throws IOException {
         createMapCommand().get(text).execute(update, service);
 
     }
