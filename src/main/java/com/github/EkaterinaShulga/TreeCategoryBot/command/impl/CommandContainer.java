@@ -36,6 +36,7 @@ public class CommandContainer {
         mapCommand.put(ADD_SUB_ELEMENT.getMessage(), new AddSubElementCommand());
         mapCommand.put(REMOVE_ELEMENT.getMessage(), new RemoveElementCommand());
         mapCommand.put(DOWNLOAD.getMessage(), new DownloadCommand());
+        mapCommand.put(UPLOAD.getMessage(), new UploadCommand());
         mapCommand.put(HELP.getMessage(), new HelpCommand());
         return mapCommand;
     }

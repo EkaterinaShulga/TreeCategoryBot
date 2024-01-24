@@ -2,6 +2,7 @@ package com.github.EkaterinaShulga.TreeCategoryBot.servise;
 
 import com.github.EkaterinaShulga.TreeCategoryBot.entity.Category;
 import com.pengrad.telegrambot.model.Update;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.IOException;
@@ -23,8 +24,18 @@ public interface CategoryService {
     String createString(List<String> list);
 
     void sendExcelFile(Update update) throws IOException;
+
     Workbook createBook(List<Category> list);
+
     void createExcelFile(Update update, Workbook book) throws IOException;
+
+    void uploadExcelFile(Update update);
+
+    void createExcelFileForDataBase(Update update);
+
+    List<String> saveInformationFromExcelFileToList(Row row);
+
+    Category createCategoryFromUploadFile(List<String> list);
 
 
 }

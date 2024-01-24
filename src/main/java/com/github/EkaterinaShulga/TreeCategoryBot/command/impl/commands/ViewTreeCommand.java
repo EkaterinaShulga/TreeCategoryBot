@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ViewTreeCommand implements Command {
 
-    public static String BUTTON_VIEW_TREE = """
+    public static String ANSWER_EXAMPLE_VIEW_TREE = """
             для просмотра всех категорий\s
             введите команду:
             /viewTree""";
@@ -42,7 +42,7 @@ public class ViewTreeCommand implements Command {
     public void executeForCallBackQuery(TelegramBot bot, Update update) {
         log.info("executeForCallBackQuery - ViewTreeCommand");
         bot.execute(new SendMessage(update.callbackQuery().message().chat().id(),
-                BUTTON_VIEW_TREE));
+                ANSWER_EXAMPLE_VIEW_TREE));
 
 
     }
