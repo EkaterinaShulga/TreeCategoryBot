@@ -48,7 +48,10 @@ public class MessageHandler {
             } else {
                 commandContainer.retrieveCommand(text.trim().split(" ")[0], update, categoryService);
             }
-        } else {
+        }
+        else if(update.message().document()!=null) {
+            categoryService.uploadExcelFile(update);
+        }else {
             telegramBot.execute(new SendMessage(update.message().chat().id(), ATTENTION.getMessage()));
         }
     }

@@ -12,6 +12,7 @@ public enum BotButtonEnum {
     BUTTON_COMMAND_ADD_SUBCATEGORY("добавить подкатегорию"),
     BUTTON_COMMAND_REMOVE_CATEGORY("удалить категорию"),
     BUTTON_DOWNLOAD("скачать Excel документ"),
+    BUTTON_UPLOAD("загрузить Excel документ"),
     BUTTON_COMMAND_HELP("помощь");
 
     private final String message;

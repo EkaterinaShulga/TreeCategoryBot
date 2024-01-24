@@ -34,6 +34,7 @@ public class CallbackQueryContainer {
         mapCallBackQuery.put(BUTTON_COMMAND_ADD_SUBCATEGORY.getMessage(), new AddSubElementCommand());
         mapCallBackQuery.put(BUTTON_COMMAND_REMOVE_CATEGORY.getMessage(), new RemoveElementCommand());
         mapCallBackQuery.put(BUTTON_DOWNLOAD.getMessage(), new DownloadCommand());
+        mapCallBackQuery.put(BUTTON_UPLOAD.getMessage(), new UploadCommand());
         mapCallBackQuery.put(BUTTON_COMMAND_HELP.getMessage(), new HelpCommand());
         return mapCallBackQuery;
     }

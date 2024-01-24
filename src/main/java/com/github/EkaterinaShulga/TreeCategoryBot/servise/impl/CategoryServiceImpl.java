@@ -1,29 +1,34 @@
 package com.github.EkaterinaShulga.TreeCategoryBot.servise.impl;
 
+
 import com.github.EkaterinaShulga.TreeCategoryBot.entity.Category;
 import com.github.EkaterinaShulga.TreeCategoryBot.repository.CategoryRepository;
 import com.github.EkaterinaShulga.TreeCategoryBot.servise.CategoryService;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
 import static com.github.EkaterinaShulga.TreeCategoryBot.constants.TextResponsesForUser.*;
+
 
 @Slf4j
 @Service
@@ -32,8 +37,11 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final TelegramBot telegramBot;
 
-    @Value("${path.to.photos.folder}")
-    private String photoDis;
+    @Value("${path.to.file.folder}")
+    private String fileDis;
+
+    @Value("${telegram.bot.token}")
+    private String token;
 
     /**
      * adds Category in the database
@@ -301,20 +309,119 @@ public class CategoryServiceImpl implements CategoryService {
     public void createExcelFile(Update update, Workbook book) throws IOException {
         log.info("createExcelFile - categoryServiceImpl");
         long chatId = update.message().chat().id();
-        try {
-            FileOutputStream fileOut = new FileOutputStream(photoDis);
+        try
+                (FileOutputStream fileOut = new FileOutputStream(fileDis)) {
             book.write(fileOut);
-            fileOut.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        byte[] byteBook = Files.readAllBytes(Path.of(photoDis));
+        byte[] byteBook = Files.readAllBytes(Path.of(fileDis));
         SendDocument sendDocument = new SendDocument(chatId, byteBook);
 
         telegramBot.execute(new SendMessage(chatId, INFORMATION_MESSAGE_CREATE_EXCEL_FILE.getMessage()));
         telegramBot.execute(sendDocument);
     }
+
+    /**
+     * method accepts Excel file from user,
+     * downloads it to the directory
+     * sends a response to the user
+     *
+     * @param update- - update from the bot
+     */
+    public void uploadExcelFile(Update update) {
+        log.info("uploadExcelFile - categoryServiceImpl");
+        String outputFileName = "src/main/resources/updates/files/book.xls";
+        String fileId = update.message().document().fileId();
+        URL url;
+        try {
+            url = new URL("https://api.telegram.org/bot" + token + "/" + "getFile?file_id=" + fileId);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(url.openStream()))) {
+            String getFileResponse = buffer.readLine();
+            JsonElement jResult = JsonParser.parseString(getFileResponse);
+            JsonObject path = jResult.getAsJsonObject().getAsJsonObject("result");
+            String file_path = path.get("file_path").getAsString();
+            File localFile = new File(outputFileName);
+            try (InputStream is = new URL("https://api.telegram.org/file/bot"
+                    + token + "/" + file_path).openStream()) {
+                FileUtils.copyInputStreamToFile(is, localFile);
+                createExcelFileForDataBase(update);
+                buffer.close();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * the method creates a file and saves information
+     * from the loaded file in it, then reads information
+     * from it and saves it in the database
+     *
+     * @param update- - update from the bot
+     */
+    @Override
+    public void createExcelFileForDataBase(Update update) {
+        log.info("createExcelFileForDataBase - categoryServiceImpl");
+        String outputFileName = "src/main/resources/updates/files/book.xls";
+        try (FileInputStream fileOut = new FileInputStream(outputFileName)) {
+            Workbook book = new HSSFWorkbook(fileOut);
+            for (Row row : book.getSheetAt(0)) {
+                Category category = createCategoryFromUploadFile(saveInformationFromExcelFileToList(row));
+                categoryRepository.save(category);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * the method reads information from the Workbook
+     * line passed to it and converts it into a String,
+     * saving Strings into a List<String>
+     * each String is information about one category
+     *
+     * @param row - row from Workbook
+     * @return List
+     */
+    @Override
+    public List<String> saveInformationFromExcelFileToList(Row row) {
+        List<String> result = new ArrayList<>();
+        for (Cell cell : row) {
+            switch (cell.getCellType()) {
+                case STRING -> result.add(cell.getRichStringCellValue().getString());
+                case NUMERIC -> {
+                    long l = Math.round(cell.getNumericCellValue());
+                    String s = String.valueOf(l);
+                    result.add(s);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * the method takes a List with String
+     * and converts each String into a category
+     *
+     * @param list - list with Strings
+     * @return Category - from upload file
+     */
+    @Override
+    public Category createCategoryFromUploadFile(List<String> list) {
+        Category category = new Category();
+        category.setId(Long.parseLong(list.get(0)));
+        category.setTitle(list.get(1));
+        category.setParentId(Long.parseLong(list.get(2)));
+
+        return category;
+    }
+
 
 }
 

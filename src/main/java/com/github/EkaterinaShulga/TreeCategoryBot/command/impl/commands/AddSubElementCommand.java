@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class AddSubElementCommand implements Command {
 
 
-    public static String BUTTON_EXAMPLE_FOR_NEW_SUBCATEGORY = """
+    public static String ANSWER_EXAMPLE_FOR_NEW_SUBCATEGORY = """
              чтобы добавить подкатегорию
             введите команду и укажите категорию/подкатегорию:
             /addSubElement верхняя одежда/пальто\s""";
@@ -42,6 +42,6 @@ public class AddSubElementCommand implements Command {
     public void executeForCallBackQuery(TelegramBot bot, Update update) {
         log.info("executeForCallBackQuery - addSubElementCommand");
         bot.execute(new SendMessage(update.callbackQuery().message().chat().id(),
-                BUTTON_EXAMPLE_FOR_NEW_SUBCATEGORY));
+                ANSWER_EXAMPLE_FOR_NEW_SUBCATEGORY));
     }
 }

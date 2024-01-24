@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class HelpCommand implements Command {
-    public static String BUTTON_EXAMPLE_HELP = """
+    public static String ANSWER_EXAMPLE_HELP = """
              для ознакомления\s
             с функционалом меню\s
             введите команду:
@@ -40,7 +40,7 @@ public class HelpCommand implements Command {
     public void executeForCallBackQuery(TelegramBot bot, Update update) {
         log.info("executeForCallBackQuery - helpCommand");
         bot.execute(new SendMessage(update.callbackQuery().message().chat().id(),
-                BUTTON_EXAMPLE_HELP));
+                ANSWER_EXAMPLE_HELP));
     }
 
 }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RemoveElementCommand implements Command {
 
-    public static String BUTTON_EXAMPLE_FOR_REMOVE_CATEGORY = """
+    public static String ANSWER_EXAMPLE_FOR_REMOVE_CATEGORY = """
              чтобы удалить категорию
             введите команду и название категории или подкатегории:\s
             /removeElement верхняя одежда\s""";
@@ -43,7 +43,7 @@ public class RemoveElementCommand implements Command {
     public void executeForCallBackQuery(TelegramBot bot, Update update) {
         log.info("executeForCallBackQuery - removeElementCommand");
         bot.execute(new SendMessage(update.callbackQuery().message().chat().id(),
-                BUTTON_EXAMPLE_FOR_REMOVE_CATEGORY));
+                ANSWER_EXAMPLE_FOR_REMOVE_CATEGORY));
     }
 
 }
